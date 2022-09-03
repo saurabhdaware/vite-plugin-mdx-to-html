@@ -7,6 +7,7 @@ import { ViteDevServer } from 'vite';
 
 type PluginOptions = {
   renderFunc?: 'renderToStaticMarkup' | 'renderToString';
+  enableImports?: boolean;
 }
 
 const mdxToHTML = (mdx: any, pluginOptions?: PluginOptions): string => {
@@ -20,6 +21,8 @@ const mdxToHTML = (mdx: any, pluginOptions?: PluginOptions): string => {
 }
 
 export const vitePluginMdxToHTML = (pluginOptions?: PluginOptions) => {
+  const shouldEnableImports = pluginOptions?.enableImports === false ? false : true;
+
   return {
     name: "vite-plugin-mdx-to-html",
     async transform(source: string, id: string) {
@@ -27,8 +30,8 @@ export const vitePluginMdxToHTML = (pluginOptions?: PluginOptions) => {
         const baseUrl = `file://${path.dirname(id)}/`;
         let code = String(await compile(source, {
           outputFormat: 'function-body',
-          useDynamicImport: true,
-          baseUrl
+          useDynamicImport: shouldEnableImports,
+          baseUrl: shouldEnableImports ? baseUrl : undefined,
         }));
 
         // Weird hack but we set queryParam on import to make sure the cache is burst on every transform call
