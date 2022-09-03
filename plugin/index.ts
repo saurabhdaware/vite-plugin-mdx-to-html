@@ -40,7 +40,7 @@ export const vitePluginMdxToHTML = (pluginOptions?: PluginOptions) => {
         });
 
         const importsInMdxCode = Array.from(source.matchAll(/ from ["'](.*?)["']/g))
-          .map((mdxImportMatch) => `import '${mdxImportMatch[1]}';\n`);
+          .map((mdxImportMatch) => `import '${mdxImportMatch[1]}';\n`).join('');
 
         let mdx = (await run(code, runtime)).default;
 
