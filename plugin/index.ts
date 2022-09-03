@@ -1,9 +1,8 @@
 import path from 'path';
 import React from "react";
 import { renderToStaticMarkup, renderToString } from "react-dom/server";
-import runtime from 'react/jsx-runtime';
-import { compile, run } from '@mdx-js/mdx';
-import { ViteDevServer } from 'vite';
+import * as runtime from 'react/jsx-runtime';
+import { compile, evaluateSync, run } from '@mdx-js/mdx';
 
 type PluginOptions = {
   renderFunc?: 'renderToStaticMarkup' | 'renderToString';
@@ -21,17 +20,26 @@ const mdxToHTML = (mdx: any, pluginOptions?: PluginOptions): string => {
 }
 
 export const vitePluginMdxToHTML = (pluginOptions?: PluginOptions) => {
-  const shouldEnableImports = pluginOptions?.enableImports === false ? false : true;
+  const enableImports = pluginOptions?.enableImports === false ? false : true;
 
   return {
     name: "vite-plugin-mdx-to-html",
     async transform(source: string, id: string) {
       if (id.endsWith(".mdx")) {
+        if (!enableImports) {
+          const mdxEvaluated = evaluateSync(source, {
+            ...runtime as any,
+          }).default;
+          return {
+            code: mdxToHTML(mdxEvaluated),
+          }
+        }
+
         const baseUrl = `file://${path.dirname(id)}/`;
         let code = String(await compile(source, {
           outputFormat: 'function-body',
-          useDynamicImport: shouldEnableImports,
-          baseUrl: shouldEnableImports ? baseUrl : undefined,
+          useDynamicImport: true,
+          baseUrl: baseUrl,
         }));
 
         // Weird hack but we set queryParam on import to make sure the cache is burst on every transform call
