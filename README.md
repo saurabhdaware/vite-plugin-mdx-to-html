@@ -2,7 +2,7 @@
 
 Vite Plugin to turn MDX into HTML string.
 
-Stackblitz Example: 
+**Stackblitz Example:** https://stackblitz.com/edit/vite-plugin-mdx-to-html?file=docs.mdx
 
 > **Note**
 >
