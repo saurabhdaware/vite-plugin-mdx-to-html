@@ -2,46 +2,50 @@ import path from 'path';
 import React from "react";
 import { renderToStaticMarkup, renderToString } from "react-dom/server";
 import runtime from 'react/jsx-runtime';
-import { evaluate } from '@mdx-js/mdx';
+import { compile, run } from '@mdx-js/mdx';
 import { ViteDevServer } from 'vite';
 
 type PluginOptions = {
   renderFunc?: 'renderToStaticMarkup' | 'renderToString';
 }
 
+const mdxToHTML = (mdx: any, pluginOptions?: PluginOptions): string => {
+  let html;
+  if (pluginOptions?.renderFunc === 'renderToString') {
+    html = renderToString(React.createElement(mdx));
+  } else {
+    html = renderToStaticMarkup(React.createElement(mdx));
+  }
+  return `export default ${JSON.stringify(html)}`;
+}
+
 export const vitePluginMdxToHTML = (pluginOptions?: PluginOptions) => {
-  let server: ViteDevServer;
   return {
     name: "vite-plugin-mdx-to-html",
-    configureServer(_server: ViteDevServer) {
-      server = _server;
-    },
     async transform(source: string, id: string) {
-      const baseUrl = `file://${path.dirname(id)}/`;
       if (id.endsWith(".mdx")) {
-        console.log({source});
-        const mdx = (await evaluate(source, {
-          ...runtime as any,
+        const baseUrl = `file://${path.dirname(id)}/`;
+        let code = String(await compile(source, {
+          outputFormat: 'function-body',
           useDynamicImport: true,
           baseUrl
-        })).default;
+        }));
 
-        // const importsInMdx = Array.from(source.matchAll(/ from ["'](.*?)["']/g))
-        //   .map((mdxImportMatch) => `import '${mdxImportMatch[1]}';\n`);
+        // Weird hack but we set queryParam on import to make sure the cache is burst on every transform call
+        // Without this, vite caches the imported file and serves same file again
+        // We then add the same file as blank import in code to make vite reload the server on change
+        const cacheBurstParam = `?cache=${new Date().getTime()}`;
+        code = code.replace(/import\("(.*?)"\)/g, (...args) => {
+          return `import("${args[1]}${cacheBurstParam}")`
+        });
 
-        // console.log(String(mdx));
-        // // server.watcher.addListener('change', (filename) => {
-        // //   if (filename.includes('math.js')) {
-        // //     server.watcher.emit('change', id);
-        // //   }
-        // // });
-        let html;
-        if (pluginOptions?.renderFunc === 'renderToString') {
-          html = renderToString(React.createElement(mdx));
-        } else {
-          html = renderToStaticMarkup(React.createElement(mdx));
-        }
-        return { code: `export default ${JSON.stringify(html)}` };
+        const importsInMdxCode = Array.from(source.matchAll(/ from ["'](.*?)["']/g))
+          .map((mdxImportMatch) => `import '${mdxImportMatch[1]}';\n`);
+
+        let mdx = (await run(code, runtime)).default;
+
+        const htmlJsExports = mdxToHTML(mdx, pluginOptions);
+        return { code: importsInMdxCode + htmlJsExports };
       }
     },
   };
