@@ -1,10 +1,4 @@
-type PluginOptions = {
-  renderFunc?: 'renderToStaticMarkup' | 'renderToString';
-  enableImports?: boolean;
-}
-
-
-export const vitePluginMdxToHTML = (pluginOptions?: PluginOptions) => {
+export const vitePluginMdxToHTML = () => {
   return {
     name: "vite-plugin-mdx-to-html",
     async transform(source: string, id: string) {
