@@ -51,9 +51,9 @@ document.querySelector('#root').innerHTML = intro;
 ```
 
 
-## Migration from 0.0.14 -> 0.0.15
+## Migration from 0.0.14 -> 0.0.16
 
-Starting 0.0.15, `vite-plugin-mdx-to-html` is supposed to be used alongside `@mdx-js/rollup`
+Starting 0.0.16, `vite-plugin-mdx-to-html` is supposed to be used alongside `@mdx-js/rollup`
 
 ```diff
 import { defineConfig } from 'vite';
@@ -65,4 +65,14 @@ export default defineConfig({
 -  plugins: [vitePluginMdxToHTML()],
 +  plugins: [mdx(), vitePluginMdxToHTML()],
 });
+```
+
+The options to plugin are removed. Imports are now stable and enabled by default. renderFunction is `renderToStaticMarkup` by default.
+
+```diff
+- vitePluginMdxToHTML({
+-   enableImports: true,
+-   renderFunc: 'renderToStaticMarkup'
+- })
++ vitePluginMdxToHTML()
 ```
