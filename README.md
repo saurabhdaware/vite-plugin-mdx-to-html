@@ -4,9 +4,16 @@ Vite Plugin to turn MDX into HTML string.
 
 **Stackblitz Example:** https://stackblitz.com/edit/vite-plugin-mdx-to-html?file=docs.mdx
 
-> **Note**
+> **Warning**
 >
-> Looking for using mdx in your React App or some framework? you might want to just use [`@mdx-js/rollup`](https://mdxjs.com/packages/rollup/) as [suggested by MDX in their documentation](https://mdxjs.com/docs/getting-started/#bundler). This plugin can be used when you're using vanilla js setup or when you want to use mdx in a static-site-generator based on vite.
+> This plugin is built for very small set of usecases like-
+> - Using it in template engines that compile to HTML
+> - Some Static-Site-Generators that expect HTML
+> - SSR in some cases.
+> 
+> The plugin uses React to render to HTML and if used with CSR, it will try to add React to bundle. You probably don't want that.
+> 
+> Looking for using mdx in your React App or some framework? you might want to just use [`@mdx-js/rollup`](https://mdxjs.com/packages/rollup/) as [suggested by MDX in their documentation](https://mdxjs.com/docs/getting-started/#bundler).
 
 
 ## Installation
