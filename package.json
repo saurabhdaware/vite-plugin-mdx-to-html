@@ -26,11 +26,9 @@
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6"
   },
-  "peerDependencies": {
+  "dependencies": {
+    "@mdx-js/rollup": "^2.1.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
-  },
-  "dependencies": {
-    "@mdx-js/rollup": "^2.1.5"
   }
 }
