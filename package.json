@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-mdx-to-html",
   "version": "0.0.15",
-  "description": "",
+  "description": "Vite Plugin to turn MDX files into HTML",
   "main": "./build/index.js",
   "module": "./build/index.js",
   "types": "./build/index.d.ts",
