@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
-import vitePluginMdxToHTML from './plugin';
+import mdx from "@mdx-js/rollup";
+import vitePluginMdxToHTML from './plugin/index';
 
 export default defineConfig({
-  plugins: [vitePluginMdxToHTML()],
+  plugins: [mdx(), vitePluginMdxToHTML()],
 })
